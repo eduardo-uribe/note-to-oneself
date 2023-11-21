@@ -3,7 +3,8 @@ import React from 'react';
 function ListItem({ item }) {
   return (
     <li>
-      <p>{item.note}</p>
+      <p contentEditable={'true'}>{item.note}</p>
+      <button type='button'>remove</button>
     </li>
   );
 }

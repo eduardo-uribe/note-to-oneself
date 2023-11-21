@@ -1,3 +1,7 @@
+import React from 'react';
+import { renderToString } from 'react-dom/server';
+import App from './src/App';
+
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -5,14 +9,8 @@ const port = 8000;
 
 // respond to a get request
 app.get('/', function (request, response, next) {
-  let file = path.join(__dirname, 'index.html');
-  response.sendFile(file, function (error) {
-    if (error) {
-      next(error);
-    } else {
-      console.log('HTML file sent.');
-    }
-  });
+  const html = renderToString(<App list={list} />);
+  response.send(html);
 });
 
 // 404 response

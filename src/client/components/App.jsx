@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import List from './List.jsx';
-import NewNoteForm from './NewNoteForm.jsx';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Home from './Home';
+import Note from './Note';
 
 function App() {
   const [items, setItems] = useState([]);
@@ -19,25 +20,55 @@ function App() {
     readData();
   }, []);
 
-  function addNoteToList(note) {
-    setItems([...items, { note: note }]);
+  function createNote(note) {
+    let newnote = { note };
+    // send a post fetch request to "/create".
+    async function postNote() {
+      try {
+        let response = await fetch('http://localhost:1234/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newnote),
+        });
+        console.log('DONE.');
+        // let data = await response.json();
+        // console.log('THIS IS THE RETURNED DATA INSIDE OF CREATENOTE APP.JS');
+        // console.log(data);
+        // setItems([...items, data]);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    postNote();
   }
 
-  if (items.length >= 7) {
-    console.log(items);
-    return (
-      <>
-        <List items={items} />
-        {/* <NewNoteForm addNoteToList={addNoteToList}></NewNoteForm> */}
-      </>
+  function deleteItem(id) {
+    setItems(
+      items.filter(function (element) {
+        return element.id !== id;
+      })
     );
   }
 
   return (
-    <>
-      <List items={items} />
-      <NewNoteForm addNoteToList={addNoteToList}></NewNoteForm>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route exact path='/' element={<Home />} />
+        <Route
+          path='/note/'
+          element={
+            <Note
+              items={items}
+              createNote={createNote}
+              deleteItem={deleteItem}
+            />
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

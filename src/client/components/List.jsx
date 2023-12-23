@@ -1,12 +1,12 @@
 import React from 'react';
 import ListItem from './ListItem.jsx';
 
-function List({ items }) {
-  let list = items.map(function (item, index) {
-    return <ListItem item={item} key={index} />;
+function List({ items, deleteItem }) {
+  let list = items.map(function (item) {
+    return <ListItem item={item} deleteItem={deleteItem} key={item.id} />;
   });
 
-  return <ol>{list}</ol>;
+  return <ul>{list}</ul>;
 }
 
 export default List;

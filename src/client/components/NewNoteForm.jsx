@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState } from 'react';
 
-function NewNoteForm({ addNoteToList }) {
+function NewNoteForm({ createNote }) {
   const [note, setNote] = useState('');
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        addNoteToList(note);
+        createNote(note);
       }}
     >
       <input

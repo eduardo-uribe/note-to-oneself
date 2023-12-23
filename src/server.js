@@ -1,8 +1,21 @@
 // import React from 'react';
 // import { renderToString } from 'react-dom/server';
 // import App from '../src/components/App.jsx';
+import postgres from 'postgres';
+import 'dotenv/config';
 
-import fs from 'fs';
+const sql = postgres(process.env.DATABASE_URL, { ssl: 'require' });
+
+async function readNotes() {
+  const notes = await sql`
+  select * from notes
+  where user_id = 1
+  `;
+
+  return notes;
+}
+
+import fs, { read } from 'fs';
 import path from 'path';
 import express from 'express';
 const app = express();
@@ -15,6 +28,7 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 
 const compiler = webpack(webpackConfig);
 
+app.use(express.json());
 /**
  * @see {@link https://github.com/webpack/webpack-dev-middleware}
  */
@@ -29,22 +43,31 @@ app.use(
  */
 app.use(webpackHotMiddleware(compiler, {}));
 
-// GET: /
-app.get('/home', function (request, response, next) {
-  return response.status(200).json({});
-});
-
 // respond to a get request
-app.get('/list', function (request, response, next) {
-  let list = [
-    { note: 'First note to oneself.' },
-    { note: 'Second note to oneself.' },
-    { note: 'Third note to oneself.' },
-  ];
+app.get('/list', async function (request, response, next) {
+  let list = await readNotes();
   return response.status(200).json(list);
 });
 
-// 404 response
+async function createNote({ note }) {
+  const newnote = await sql`
+  insert into notes
+  (note, user_id)
+  values (${newnote} , 1)
+  returning *
+  `;
+  return newnote;
+}
+
+// respond to a post request
+app.get('/create', async function (request, response, next) {
+  const { note } = request.body;
+  let newnote = await createNote(note);
+  // console.log(newnote);
+  return response.status(200).json(newnote);
+});
+
+//404 response
 app.use('*', function (request, response, next) {
   response.status(404).send('404 Not Found');
 });
